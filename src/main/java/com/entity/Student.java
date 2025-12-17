@@ -1,6 +1,12 @@
 package com.example.demo.entity;
 
+
+@Entity
+@Table(name = "students")
 public class Student {
+
+   @Id 
+   @GeneratedValued()
    private Long id;
    private String name;
    private String email;
