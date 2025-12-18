@@ -1,23 +1,31 @@
-package com.example.demo.controller;
+package com.example.demo.exception;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.http.ResponseEntity;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import java.util.Map;
+import java.util.HashMap;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
-import com.example.demo.entity.Student;
-import com.example.demo.service.StudentService;
+@RestControllerAdvice
+public class GlobalExceptionHandler{
 
-@RestController
-public class StudentController {
-    @Autowired
-    StudentService studentService;
+    @ExceptionHandler(ResourceNotFoundException.class) //runtime expection
+        public ResponseEntity<String> handleNotFound(ResourceNotFoundException ex){
+            return new ResponseEntity<>(ex.getMessage(),HttpStatus.NOT_FOUND);
+        }
 
-    @PostMapping("/postdata")
-    public Student postdata(@RequestBody Student student){
-        return studentService.saveStudent(student);
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String,String>> handleMethod(MethodArgumentNotValidException mex){
+        
+        Map<String,String> errors=new HashMap<>();
+
+        mex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
     }
 
-
-
-} 
+}
